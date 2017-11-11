@@ -194,7 +194,6 @@
 			        <h4 class="modal-title"></h4>
 			      </div>
 			      <div class="modal-body">
-			        <p class="modal-body-paragraph"></p>
 			      </div>
 			      <div class="modal-footer">
 			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -221,13 +220,12 @@
 			};
 			// AJAX post the data to the friends API. 
 			$.post("/api/new", userData).done(function(data){
-			//alert("Adding character...");
+			alert("Added new user.");
 				matchFriends();
 			});
     });
 
   	function matchFriends(){
-	  		console.log('Match');
 	        
 	  		// Here we get the location of the root page.
 			// We use this instead of explicitly saying the URL is localhost:3001 because the url will change when we deploy.
@@ -238,9 +236,11 @@
   				method: 'GET'
   			}).done(function(data){
   				var count = 0;
-  				var search_best_match = [];
-  				var match;
+  				// this array gets the differences between answers
+  				var best_match = [];
+  				//this array contains the entries for the latest users inputs
 				var userArr = data[data.length-1].scores;
+				// loop the through the api friends and calculate the differences between answers
 				for (var i = 0; i < data.length-1; i++) {
 					for (var j = 0; j < 10; j++) {
 						var temp = userArr[j] - data[i].scores[j];
@@ -248,18 +248,18 @@
 
 						count += temp;
 					}
-						search_best_match.push(count);
-				    	count = 0;
-				}
-				console.log(search_best_match);
-				for (var i = 0; i < search_best_match.length-1; i++) {
-					for (var j = 1; j < search_best_match.length; j++) {
-						if(search_best_match[i] < search_best_match[j]){count = i;}
-					}
-				}
-				
-	  					$('.modal-header').append('<span>'+ data[count].name + '</span>');
-	  					$('.modal-body-paragraph').append('<span>'+ data[count].photo + '</span>');	  					
+						//pushing the differences of answers into the array
+						best_match.push(count);
+						count = 0;
+				}	
+				console.log(best_match);
+				//find the smallest value in the best_match 
+				var min = Math.min.apply(null, best_match);
+				//find the index of best_match the results of differences
+				var index = best_match.indexOf(min);
+				//append to a modal view
+				$('.modal-title').append('<span>'+ data[index].name + '</span>');
+				$('.modal-body').append('<img src="'+ data[index].photo +'" style="height: 200px; width: 200p; border-radius: 10%">');	  					
   			});
   		}
 
